@@ -30,6 +30,8 @@ public enum AWSResourceType implements ResourceType {
     EBS_VOLUME,
     /** AWS EBS snapshot. */
     EBS_SNAPSHOT,
+    /** AWS Cloudwatch alarms. */
+    ALARMS,
     /** AWS auto scaling group. */
     ASG,
     /** AWS launch configuration. */

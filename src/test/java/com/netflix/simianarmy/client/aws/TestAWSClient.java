@@ -19,16 +19,20 @@
 package com.netflix.simianarmy.client.aws;
 
 import com.amazonaws.services.autoscaling.AmazonAutoScalingClient;
-import com.amazonaws.services.autoscaling.model.AutoScalingGroup;
-import com.amazonaws.services.autoscaling.model.DescribeAutoScalingGroupsRequest;
-import com.amazonaws.services.autoscaling.model.DescribeAutoScalingGroupsResult;
-import com.amazonaws.services.autoscaling.model.Instance;
+import com.amazonaws.services.autoscaling.model.*;
+import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
+import com.amazonaws.services.cloudwatch.model.DescribeAlarmsRequest;
+import com.amazonaws.services.cloudwatch.model.DescribeAlarmsResult;
+import com.amazonaws.services.cloudwatch.model.Metric;
+import com.amazonaws.services.cloudwatch.model.MetricAlarm;
 import com.amazonaws.services.ec2.AmazonEC2;
+import com.amazonaws.services.ec2.model.DescribeSnapshotsResult;
 import com.amazonaws.services.ec2.model.TerminateInstancesRequest;
 import org.mockito.ArgumentCaptor;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -49,6 +53,12 @@ public class TestAWSClient extends AWSClient {
         return ec2Mock;
     }
 
+    private AmazonCloudWatch cloudWatchMock = mock(AmazonCloudWatch.class);
+
+    protected AmazonCloudWatch cloudWatchClient() {
+        return cloudWatchMock;
+    }
+
     private AmazonAutoScalingClient asgMock = mock(AmazonAutoScalingClient.class);
 
     protected AmazonAutoScalingClient asgClient() {
@@ -57,6 +67,10 @@ public class TestAWSClient extends AWSClient {
 
     protected AmazonEC2 superEc2Client() {
         return super.ec2Client();
+    }
+
+    protected AmazonCloudWatch superCloudWatchClient() {
+        return super.cloudWatchClient();
     }
 
     protected AmazonAutoScalingClient superAsgClient() {
@@ -68,6 +82,7 @@ public class TestAWSClient extends AWSClient {
         TestAWSClient client1 = new TestAWSClient();
         Assert.assertNotNull(client1.superEc2Client(), "non null super ec2Client");
         Assert.assertNotNull(client1.superAsgClient(), "non null super asgClient");
+        Assert.assertNotNull(client1.superCloudWatchClient(), "non null super cloudWatchClient");
     }
 
     @Test
@@ -118,5 +133,33 @@ public class TestAWSClient extends AWSClient {
         Assert.assertEquals(asgs.get(1).getAutoScalingGroupName(), "asg2");
         Assert.assertEquals(asgs.get(1).getInstances().size(), 1);
         Assert.assertEquals(asgs.get(1).getInstances().get(0).getInstanceId(), "i-012345671");
+    }
+
+
+    private DescribeAlarmsResult mkAlarmsResult(String ...alarmNames) {
+        List<MetricAlarm> alarms = new java.util.ArrayList<>();
+        for (String alarmName : alarmNames){
+            alarms.add(new MetricAlarm().withAlarmName(alarmName));
+        }
+        return new DescribeAlarmsResult().withMetricAlarms(alarms);
+    }
+
+
+    @Test
+    public void testDescribeAlarms() {
+        DescribeAlarmsResult result1 = mkAlarmsResult("alarm1","alarm2");
+
+        when(cloudWatchMock.describeAlarms(any(DescribeAlarmsRequest.class)))
+                .thenReturn(result1);
+
+        List<MetricAlarm> alarms = this.describeAlarms();
+
+        verify(cloudWatchMock, times(1)).describeAlarms(any(DescribeAlarmsRequest.class));
+
+        Assert.assertEquals(alarms.size(), 2);
+
+        // 2 alarms
+        Assert.assertEquals(alarms.get(0).getAlarmName(), "alarm1");
+        Assert.assertEquals(alarms.get(1).getAlarmName(), "alarm2");
     }
 }

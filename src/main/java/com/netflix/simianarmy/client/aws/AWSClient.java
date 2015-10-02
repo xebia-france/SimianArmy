@@ -32,6 +32,12 @@ import com.amazonaws.services.autoscaling.model.DescribeAutoScalingInstancesResu
 import com.amazonaws.services.autoscaling.model.DescribeLaunchConfigurationsRequest;
 import com.amazonaws.services.autoscaling.model.DescribeLaunchConfigurationsResult;
 import com.amazonaws.services.autoscaling.model.LaunchConfiguration;
+import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
+import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
+import com.amazonaws.services.cloudwatch.model.DescribeAlarmsRequest;
+import com.amazonaws.services.cloudwatch.model.DescribeAlarmsResult;
+import com.amazonaws.services.cloudwatch.model.Metric;
+import com.amazonaws.services.cloudwatch.model.MetricAlarm;
 import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.CreateSecurityGroupRequest;
@@ -253,6 +259,30 @@ public class AWSClient implements CloudClient {
             }
         }
         client.setEndpoint("ec2." + region + ".amazonaws.com");
+        return client;
+    }
+
+    /**
+     * Amazon CloudWatch client. Abstracted to aid testing.
+     *
+     * @return the Amazon CloudWatch client
+     */
+    protected AmazonCloudWatch cloudWatchClient() {
+        AmazonCloudWatch client;
+        if (awsClientConfig == null) {
+            if (awsCredentialsProvider == null) {
+                client = new AmazonCloudWatchClient();
+            } else {
+                client = new AmazonCloudWatchClient(awsCredentialsProvider);
+            }
+        } else {
+            if (awsCredentialsProvider == null) {
+                client = new AmazonCloudWatchClient(awsClientConfig);
+            } else {
+                client = new AmazonCloudWatchClient(awsCredentialsProvider, awsClientConfig);
+            }
+        }
+        client.setEndpoint("monitoring." + region + ".amazonaws.com");
         return client;
     }
 
@@ -644,6 +674,31 @@ public class AWSClient implements CloudClient {
 
         LOGGER.info(String.format("Got %d EBS snapshots in region %s.", snapshots.size(), region));
         return snapshots;
+    }
+
+    /**
+     * Describe a set of specific Alarm names.
+     *
+     * @param alarmNames the alarm names
+     * @return the alarms
+     */
+    public List<MetricAlarm> describeAlarms(String... alarmNames) {
+        if (alarmNames == null || alarmNames.length == 0) {
+            LOGGER.info(String.format("Getting all alarms in region %s.", region));
+        } else {
+            LOGGER.info(String.format("Getting alarmNames for %d ids in region %s.", alarmNames.length, region));
+        }
+
+        AmazonCloudWatch cloudWatchClient = cloudWatchClient();
+        DescribeAlarmsRequest request = new DescribeAlarmsRequest();
+        if (alarmNames != null) {
+            request.setAlarmNames(Arrays.asList(alarmNames));
+        }
+        DescribeAlarmsResult result = cloudWatchClient.describeAlarms(request);
+        List<MetricAlarm> alarms = result.getMetricAlarms();
+
+        LOGGER.info(String.format("Got %d alarms in region %s.", alarms.size(), region));
+        return alarms;
     }
 
     @Override

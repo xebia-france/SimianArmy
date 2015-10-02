@@ -24,13 +24,7 @@ import com.netflix.discovery.DiscoveryManager;
 import com.netflix.simianarmy.MonkeyCalendar;
 import com.netflix.simianarmy.MonkeyConfiguration;
 import com.netflix.simianarmy.MonkeyRecorder;
-import com.netflix.simianarmy.aws.janitor.ASGJanitor;
-import com.netflix.simianarmy.aws.janitor.EBSSnapshotJanitor;
-import com.netflix.simianarmy.aws.janitor.EBSVolumeJanitor;
-import com.netflix.simianarmy.aws.janitor.ImageJanitor;
-import com.netflix.simianarmy.aws.janitor.InstanceJanitor;
-import com.netflix.simianarmy.aws.janitor.LaunchConfigJanitor;
-import com.netflix.simianarmy.aws.janitor.SimpleDBJanitorResourceTracker;
+import com.netflix.simianarmy.aws.janitor.*;
 import com.netflix.simianarmy.aws.janitor.crawler.ASGJanitorCrawler;
 import com.netflix.simianarmy.aws.janitor.crawler.EBSSnapshotJanitorCrawler;
 import com.netflix.simianarmy.aws.janitor.crawler.EBSVolumeJanitorCrawler;
@@ -152,6 +146,10 @@ public class BasicJanitorMonkeyContext extends BasicSimianArmyContext implements
 
         if (enabledResourceSet.contains("EBS_SNAPSHOT")) {
             janitors.add(getEBSSnapshotJanitor());
+        }
+
+        if (enabledResourceSet.contains("Alarms")) {
+            janitors.add(getEBSVolumeJanitor());
         }
 
         if (enabledResourceSet.contains("LAUNCH_CONFIG")) {
@@ -285,6 +283,23 @@ public class BasicJanitorMonkeyContext extends BasicSimianArmyContext implements
                 monkeyRegion, ruleEngine, volumeCrawler, janitorResourceTracker,
                 monkeyCalendar, configuration(), recorder());
         return new EBSVolumeJanitor(awsClient(), volumeJanitorCtx);
+    }
+
+    private AlarmJanitor getAlarmJanitor() {
+        // TODO : Add configuration initialization
+        JanitorRuleEngine ruleEngine = new BasicJanitorRuleEngine();
+
+        JanitorCrawler volumeCrawler;
+        if (configuration().getBoolOrElse("simianarmy.janitor.edda.enabled", false)) {
+            volumeCrawler = new EddaEBSVolumeJanitorCrawler(createEddaClient(), awsClient().region());
+        } else {
+            volumeCrawler = new EBSVolumeJanitorCrawler(awsClient());
+        }
+
+        BasicJanitorContext alarmJanitorCtx = new BasicJanitorContext(
+                monkeyRegion, ruleEngine, volumeCrawler, janitorResourceTracker,
+                monkeyCalendar, configuration(), recorder());
+        return new AlarmJanitor(awsClient(), alarmJanitorCtx);
     }
 
     private EBSSnapshotJanitor getEBSSnapshotJanitor() {
