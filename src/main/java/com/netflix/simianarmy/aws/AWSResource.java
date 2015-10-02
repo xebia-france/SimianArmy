@@ -51,7 +51,7 @@ public class AWSResource implements Resource {
     private String awsResourceState;
 
     /** The field name for resourceId. **/
-    public static final String FIELD_RESOURCE_ID = "resourceId";
+    public static final String FIELD_RESOURCE_ID = "id";
     /** The field name for resourceType. **/
     public static final String FIELD_RESOURCE_TYPE = "resourceType";
     /** The field name for region. **/

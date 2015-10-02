@@ -85,14 +85,14 @@ public class JanitorMonkeyResource {
         JsonNode input = mapper.readTree(content);
 
         String eventType = getStringField(input, "eventType");
-        String resourceId = getStringField(input, "resourceId");
+        String resourceId = getStringField(input, "id");
 
         Response.Status responseStatus;
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         JsonGenerator gen = JSON_FACTORY.createJsonGenerator(baos, JsonEncoding.UTF8);
         gen.writeStartObject();
         gen.writeStringField("eventType", eventType);
-        gen.writeStringField("resourceId", resourceId);
+        gen.writeStringField("id", resourceId);
 
         if (StringUtils.isEmpty(eventType) || StringUtils.isEmpty(resourceId)) {
             responseStatus = Response.Status.BAD_REQUEST;

@@ -130,7 +130,7 @@ public class SimpleDBJanitorResourceTracker implements JanitorResourceTracker {
     public Resource getResource(String resourceId) {
         Validate.notEmpty(resourceId);
         StringBuilder query = new StringBuilder();
-        query.append(String.format("select * from `%s` where resourceId = '%s'", domain, resourceId));
+        query.append(String.format("select * from `%s` where id = '%s'", domain, resourceId));
 
         LOGGER.debug(String.format("Query is '%s'", query));
 
