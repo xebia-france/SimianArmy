@@ -17,6 +17,7 @@
  */
 package com.netflix.simianarmy.aws.janitor.crawler;
 
+import com.amazonaws.services.cloudwatch.model.MetricAlarm;
 import com.amazonaws.services.ec2.model.Tag;
 import com.amazonaws.services.ec2.model.Volume;
 import com.netflix.simianarmy.Resource;
@@ -56,59 +57,29 @@ public class AlarmJanitorCrawler extends AbstractAWSJanitorCrawler {
     @Override
     public List<Resource> resources(ResourceType resourceType) {
         if ("ALARMS".equals(resourceType.name())) {
-            return getVolumeResources();
+            return getAlarmResources();
         }
         return Collections.emptyList();
     }
 
     @Override
-    public List<Resource> resources(String... resourceIds) {
-        return getVolumeResources(resourceIds);
+    public List<Resource> resources(String... alarmNames) {
+        return getAlarmResources(alarmNames);
     }
 
-    private List<Resource> getVolumeResources(String... volumeIds) {
+    private List<Resource> getAlarmResources(String... alarmNames) {
         List<Resource> resources = new LinkedList<Resource>();
 
         AWSClient awsClient = getAWSClient();
 
-        for (Volume volume : awsClient.describeVolumes(volumeIds)) {
-            Resource volumeResource = new AWSResource().withId(volume.getVolumeId())
-                    .withRegion(getAWSClient().region()).withResourceType(AWSResourceType.EBS_VOLUME)
-                    .withLaunchTime(volume.getCreateTime());
-            for (Tag tag : volume.getTags()) {
-                LOGGER.info(String.format("Adding tag %s = %s to resource %s",
-                        tag.getKey(), tag.getValue(), volumeResource.getId()));
-                volumeResource.setTag(tag.getKey(), tag.getValue());
-            }
-            volumeResource.setOwnerEmail(getOwnerEmailForResource(volumeResource));
-            volumeResource.setDescription(getVolumeDescription(volume));
-            ((AWSResource) volumeResource).setAWSResourceState(volume.getState());
-            resources.add(volumeResource);
+        for (MetricAlarm alarm: awsClient.describeAlarms(alarmNames)) {
+            Resource alarmResource = new AWSResource()
+                    .withId(alarm.getAlarmName())
+                    .withRegion(getAWSClient().region())
+                    .withResourceType(AWSResourceType.ALARMS);
+            ((AWSResource) alarmResource).setAWSResourceState(alarm.getStateValue());
+            resources.add(alarmResource);
         }
         return resources;
     }
-
-    private String getVolumeDescription(Volume volume) {
-        StringBuilder description = new StringBuilder();
-        Integer size = volume.getSize();
-        description.append(String.format("size=%s", size == null ? "unknown" : size));
-        for (Tag tag : volume.getTags()) {
-            description.append(String.format("; %s=%s", tag.getKey(), tag.getValue()));
-        }
-        return description.toString();
-    }
-
-    @Override
-    public String getOwnerEmailForResource(Resource resource) {
-        String owner = super.getOwnerEmailForResource(resource);
-        if (owner == null) {
-            // try to find the owner from Janitor Metadata tag set by the volume tagging monkey.
-            Map<String, String> janitorTag = VolumeTaggingMonkey.parseJanitorMetaTag(resource.getTag(
-                    JanitorMonkey.JANITOR_META_TAG));
-            owner = janitorTag.get(BasicSimianArmyContext.GLOBAL_OWNER_TAGKEY);
-        }
-        return owner;
-    }
-
-
 }

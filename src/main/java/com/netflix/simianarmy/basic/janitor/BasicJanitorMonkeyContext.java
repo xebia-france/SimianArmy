@@ -25,11 +25,7 @@ import com.netflix.simianarmy.MonkeyCalendar;
 import com.netflix.simianarmy.MonkeyConfiguration;
 import com.netflix.simianarmy.MonkeyRecorder;
 import com.netflix.simianarmy.aws.janitor.*;
-import com.netflix.simianarmy.aws.janitor.crawler.ASGJanitorCrawler;
-import com.netflix.simianarmy.aws.janitor.crawler.EBSSnapshotJanitorCrawler;
-import com.netflix.simianarmy.aws.janitor.crawler.EBSVolumeJanitorCrawler;
-import com.netflix.simianarmy.aws.janitor.crawler.InstanceJanitorCrawler;
-import com.netflix.simianarmy.aws.janitor.crawler.LaunchConfigJanitorCrawler;
+import com.netflix.simianarmy.aws.janitor.crawler.*;
 import com.netflix.simianarmy.aws.janitor.crawler.edda.EddaASGJanitorCrawler;
 import com.netflix.simianarmy.aws.janitor.crawler.edda.EddaEBSSnapshotJanitorCrawler;
 import com.netflix.simianarmy.aws.janitor.crawler.edda.EddaEBSVolumeJanitorCrawler;
@@ -149,7 +145,7 @@ public class BasicJanitorMonkeyContext extends BasicSimianArmyContext implements
         }
 
         if (enabledResourceSet.contains("Alarms")) {
-            janitors.add(getEBSVolumeJanitor());
+            janitors.add(getAlarmJanitor());
         }
 
         if (enabledResourceSet.contains("LAUNCH_CONFIG")) {
@@ -290,11 +286,11 @@ public class BasicJanitorMonkeyContext extends BasicSimianArmyContext implements
         JanitorRuleEngine ruleEngine = new BasicJanitorRuleEngine();
 
         JanitorCrawler volumeCrawler;
-        if (configuration().getBoolOrElse("simianarmy.janitor.edda.enabled", false)) {
-            volumeCrawler = new EddaEBSVolumeJanitorCrawler(createEddaClient(), awsClient().region());
-        } else {
-            volumeCrawler = new EBSVolumeJanitorCrawler(awsClient());
-        }
+//        if (configuration().getBoolOrElse("simianarmy.janitor.edda.enabled", false)) {
+//            volumeCrawler = new EddaEBSVolumeJanitorCrawler(createEddaClient(), awsClient().region());
+//        } else {
+            volumeCrawler = new AlarmJanitorCrawler(awsClient());
+//        }
 
         BasicJanitorContext alarmJanitorCtx = new BasicJanitorContext(
                 monkeyRegion, ruleEngine, volumeCrawler, janitorResourceTracker,
