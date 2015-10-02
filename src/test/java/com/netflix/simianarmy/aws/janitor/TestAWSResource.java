@@ -126,7 +126,7 @@ public class TestAWSResource {
     }
 
     private Resource getTestingResource(Date now) {
-        String id = "resourceId";
+        String id = "id";
         Resource resource = new AWSResource().withId(id).withRegion("region").withResourceType(AWSResourceType.INSTANCE)
                 .withState(Resource.CleanupState.MARKED).withDescription("description")
                 .withExpectedTerminationTime(now).withActualTerminationTime(now)
