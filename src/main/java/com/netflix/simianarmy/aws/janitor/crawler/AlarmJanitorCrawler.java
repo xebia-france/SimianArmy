@@ -18,20 +18,18 @@
 package com.netflix.simianarmy.aws.janitor.crawler;
 
 import com.amazonaws.services.cloudwatch.model.MetricAlarm;
-import com.amazonaws.services.ec2.model.Tag;
-import com.amazonaws.services.ec2.model.Volume;
 import com.netflix.simianarmy.Resource;
 import com.netflix.simianarmy.ResourceType;
 import com.netflix.simianarmy.aws.AWSResource;
 import com.netflix.simianarmy.aws.AWSResourceType;
-import com.netflix.simianarmy.aws.janitor.VolumeTaggingMonkey;
-import com.netflix.simianarmy.basic.BasicSimianArmyContext;
 import com.netflix.simianarmy.client.aws.AWSClient;
-import com.netflix.simianarmy.janitor.JanitorMonkey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * The crawler to crawl AWS CloudWatch alarms for janitor monkey.
@@ -68,7 +66,7 @@ public class AlarmJanitorCrawler extends AbstractAWSJanitorCrawler {
     }
 
     private List<Resource> getAlarmResources(String... alarmNames) {
-        List<Resource> resources = new LinkedList<Resource>();
+        List<Resource> resources = new LinkedList<>();
 
         AWSClient awsClient = getAWSClient();
 

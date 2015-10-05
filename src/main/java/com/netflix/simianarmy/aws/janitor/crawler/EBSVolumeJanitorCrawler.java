@@ -114,6 +114,4 @@ public class EBSVolumeJanitorCrawler extends AbstractAWSJanitorCrawler {
         }
         return owner;
     }
-
-
 }

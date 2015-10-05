@@ -60,5 +60,4 @@ public class EBSVolumeJanitor extends AbstractJanitor {
     @Override
     protected void postCleanup(Resource resource) {
     }
-
 }

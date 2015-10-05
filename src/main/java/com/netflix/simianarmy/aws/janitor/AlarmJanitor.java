@@ -53,7 +53,8 @@ public class AlarmJanitor extends AbstractJanitor{
 
     @Override
     protected void cleanup(Resource resource) {
-
+        LOGGER.info(String.format("Deleting CloudWatch alarm %s", resource.getId()));
+        awsClient.deleteAlarm(resource.getId());
     }
 
     @Override

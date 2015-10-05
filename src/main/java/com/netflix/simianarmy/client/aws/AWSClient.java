@@ -34,10 +34,7 @@ import com.amazonaws.services.autoscaling.model.DescribeLaunchConfigurationsResu
 import com.amazonaws.services.autoscaling.model.LaunchConfiguration;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
-import com.amazonaws.services.cloudwatch.model.DescribeAlarmsRequest;
-import com.amazonaws.services.cloudwatch.model.DescribeAlarmsResult;
-import com.amazonaws.services.cloudwatch.model.Metric;
-import com.amazonaws.services.cloudwatch.model.MetricAlarm;
+import com.amazonaws.services.cloudwatch.model.*;
 import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.CreateSecurityGroupRequest;
@@ -699,6 +696,15 @@ public class AWSClient implements CloudClient {
 
         LOGGER.info(String.format("Got %d alarms in region %s.", alarms.size(), region));
         return alarms;
+    }
+
+    /**
+     * Delete the CloudWatch alarm identified by the given name.
+     * @param name  CloudWatch alarm's name
+     */
+    public void deleteAlarm(String name) {
+        AmazonCloudWatch cloudWatchClient = cloudWatchClient();
+        cloudWatchClient.deleteAlarms(new DeleteAlarmsRequest().withAlarmNames(name));
     }
 
     @Override

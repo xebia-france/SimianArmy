@@ -127,7 +127,7 @@ public class BasicJanitorMonkeyContext extends BasicSimianArmyContext implements
 
         emailNotifier = new JanitorEmailNotifier(getJanitorEmailNotifierContext());
 
-        janitors = new ArrayList<AbstractJanitor>();
+        janitors = new ArrayList<>();
         if (enabledResourceSet.contains("ASG")) {
             janitors.add(getASGJanitor());
         }
