@@ -17,6 +17,7 @@
  */
 package com.netflix.simianarmy.aws.janitor.crawler;
 
+import com.amazonaws.services.cloudwatch.model.Dimension;
 import com.amazonaws.services.cloudwatch.model.MetricAlarm;
 import com.netflix.simianarmy.Resource;
 import com.netflix.simianarmy.ResourceType;
@@ -49,12 +50,12 @@ public class AlarmJanitorCrawler extends AbstractAWSJanitorCrawler {
 
     @Override
     public EnumSet<? extends ResourceType> resourceTypes() {
-        return EnumSet.of(AWSResourceType.ALARMS);
+        return EnumSet.of(AWSResourceType.ALARM);
     }
 
     @Override
     public List<Resource> resources(ResourceType resourceType) {
-        if ("ALARMS".equals(resourceType.name())) {
+        if ("ALARM".equals(resourceType.name())) {
             return getAlarmResources();
         }
         return Collections.emptyList();
@@ -74,8 +75,11 @@ public class AlarmJanitorCrawler extends AbstractAWSJanitorCrawler {
             Resource alarmResource = new AWSResource()
                     .withId(alarm.getAlarmName())
                     .withRegion(getAWSClient().region())
-                    .withResourceType(AWSResourceType.ALARMS);
+                    .withResourceType(AWSResourceType.ALARM);
             ((AWSResource) alarmResource).setAWSResourceState(alarm.getStateValue());
+            for(Dimension dim : alarm.getDimensions()){
+                alarmResource.setAdditionalField(dim.getName(), dim.getValue());
+            }
             resources.add(alarmResource);
         }
         return resources;

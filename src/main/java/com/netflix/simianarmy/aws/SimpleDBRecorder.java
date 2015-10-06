@@ -17,36 +17,20 @@
  */
 package com.netflix.simianarmy.aws;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.commons.lang.Validate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.services.simpledb.AmazonSimpleDB;
-import com.amazonaws.services.simpledb.model.Attribute;
-import com.amazonaws.services.simpledb.model.CreateDomainRequest;
-import com.amazonaws.services.simpledb.model.Item;
-import com.amazonaws.services.simpledb.model.ListDomainsResult;
-import com.amazonaws.services.simpledb.model.PutAttributesRequest;
-import com.amazonaws.services.simpledb.model.ReplaceableAttribute;
-import com.amazonaws.services.simpledb.model.SelectRequest;
-import com.amazonaws.services.simpledb.model.SelectResult;
+import com.amazonaws.services.simpledb.model.*;
 import com.netflix.simianarmy.EventType;
 import com.netflix.simianarmy.MonkeyRecorder;
 import com.netflix.simianarmy.MonkeyType;
 import com.netflix.simianarmy.NamedType;
 import com.netflix.simianarmy.basic.BasicRecorderEvent;
 import com.netflix.simianarmy.client.aws.AWSClient;
+import org.apache.commons.lang.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.*;
 
 /**
  * The Class SimpleDBRecorder. Records events to and fetched events from a Amazon SimpleDB table (default SIMIAN_ARMY)
@@ -89,7 +73,9 @@ public class SimpleDBRecorder implements MonkeyRecorder {
                 }
             }
         });
-    };
+    }
+
+    ;
 
     /**
      * Instantiates a new simple db recorder.
@@ -272,16 +258,19 @@ public class SimpleDBRecorder implements MonkeyRecorder {
                 LOGGER.debug("Region=null; skipping SimpleDB domain creation");
                 return;
             }
-            ListDomainsResult listDomains = sdbClient().listDomains();
+            AmazonSimpleDB sdbClient = sdbClient();
+            ListDomainsResult listDomains = sdbClient.listDomains();
             for (String d : listDomains.getDomainNames()) {
                 if (d.equals(domain)) {
+                    DeleteDomainRequest deleteDomainRequest = new DeleteDomainRequest().withDomainName("SIMIAN_ARMY");
+                    sdbClient.deleteDomain(deleteDomainRequest);
+                    LOGGER.debug("Delete simian_army before <<------------------------");
                     LOGGER.debug("SimpleDB domain found: {}", domain);
-                    return;
+                    //return;
                 }
             }
             LOGGER.info("Creating SimpleDB domain: {}", domain);
-            CreateDomainRequest createDomainRequest = new CreateDomainRequest(
-                    domain);
+            CreateDomainRequest createDomainRequest = new CreateDomainRequest(domain);
             sdbClient().createDomain(createDomainRequest);
         } catch (AmazonClientException e) {
             LOGGER.warn("Error while trying to auto-create SimpleDB domain", e);

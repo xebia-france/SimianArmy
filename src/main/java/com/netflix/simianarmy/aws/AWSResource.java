@@ -126,37 +126,53 @@ public class AWSResource implements Resource {
         for (Map.Entry<String, String> field : fieldToValue.entrySet()) {
             String name = field.getKey();
             String value = field.getValue();
-            if (name.equals(FIELD_RESOURCE_ID)) {
-                resource.setId(value);
-            } else if (name.equals(FIELD_RESOURCE_TYPE)) {
-                resource.setResourceType(AWSResourceType.valueOf(value));
-            } else if (name.equals(FIELD_REGION)) {
-                resource.setRegion(value);
-            } else if (name.equals(FIELD_OWNER_EMAIL)) {
-                resource.setOwnerEmail(value);
-            } else if (name.equals(FIELD_DESCRIPTION)) {
-                resource.setDescription(value);
-            } else if (name.equals(FIELD_STATE)) {
-                resource.setState(CleanupState.valueOf(value));
-            } else if (name.equals(FIELD_TERMINATION_REASON)) {
-                resource.setTerminationReason(value);
-            } else if (name.equals(FIELD_EXPECTED_TERMINATION_TIME)) {
-                resource.setExpectedTerminationTime(new Date(DATE_FORMATTER.parseDateTime(value).getMillis()));
-            } else if (name.equals(FIELD_ACTUAL_TERMINATION_TIME)) {
-                resource.setActualTerminationTime(new Date(DATE_FORMATTER.parseDateTime(value).getMillis()));
-            } else if (name.equals(FIELD_NOTIFICATION_TIME)) {
-                resource.setNotificationTime(new Date(DATE_FORMATTER.parseDateTime(value).getMillis()));
-            } else if (name.equals(FIELD_LAUNCH_TIME)) {
-                resource.setLaunchTime(new Date(DATE_FORMATTER.parseDateTime(value).getMillis()));
-            } else if (name.equals(FIELD_MARK_TIME)) {
-                resource.setMarkTime(new Date(DATE_FORMATTER.parseDateTime(value).getMillis()));
-            } else if (name.equals(FIELD_AWS_RESOURCE_STATE)) {
-                resource.setAWSResourceState(value);
-            } else if (name.equals(FIELD_OPT_OUT_OF_JANITOR)) {
-                resource.setOptOutOfJanitor("true".equals(value));
-            } else {
-                // put all other fields into additional fields
-                resource.setAdditionalField(name, value);
+            switch (name) {
+                case FIELD_RESOURCE_ID:
+                    resource.setId(value);
+                    break;
+                case FIELD_RESOURCE_TYPE:
+                    resource.setResourceType(AWSResourceType.valueOf(value));
+                    break;
+                case FIELD_REGION:
+                    resource.setRegion(value);
+                    break;
+                case FIELD_OWNER_EMAIL:
+                    resource.setOwnerEmail(value);
+                    break;
+                case FIELD_DESCRIPTION:
+                    resource.setDescription(value);
+                    break;
+                case FIELD_STATE:
+                    resource.setState(CleanupState.valueOf(value));
+                    break;
+                case FIELD_TERMINATION_REASON:
+                    resource.setTerminationReason(value);
+                    break;
+                case FIELD_EXPECTED_TERMINATION_TIME:
+                    resource.setExpectedTerminationTime(new Date(DATE_FORMATTER.parseDateTime(value).getMillis()));
+                    break;
+                case FIELD_ACTUAL_TERMINATION_TIME:
+                    resource.setActualTerminationTime(new Date(DATE_FORMATTER.parseDateTime(value).getMillis()));
+                    break;
+                case FIELD_NOTIFICATION_TIME:
+                    resource.setNotificationTime(new Date(DATE_FORMATTER.parseDateTime(value).getMillis()));
+                    break;
+                case FIELD_LAUNCH_TIME:
+                    resource.setLaunchTime(new Date(DATE_FORMATTER.parseDateTime(value).getMillis()));
+                    break;
+                case FIELD_MARK_TIME:
+                    resource.setMarkTime(new Date(DATE_FORMATTER.parseDateTime(value).getMillis()));
+                    break;
+                case FIELD_AWS_RESOURCE_STATE:
+                    resource.setAWSResourceState(value);
+                    break;
+                case FIELD_OPT_OUT_OF_JANITOR:
+                    resource.setOptOutOfJanitor("true".equals(value));
+                    break;
+                default:
+                    // put all other fields into additional fields
+                    resource.setAdditionalField(name, value);
+                    break;
             }
         }
         return resource;

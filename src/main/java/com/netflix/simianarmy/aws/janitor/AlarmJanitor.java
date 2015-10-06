@@ -18,7 +18,6 @@
 package com.netflix.simianarmy.aws.janitor;
 
 import com.netflix.simianarmy.Resource;
-import com.netflix.simianarmy.ResourceType;
 import com.netflix.simianarmy.aws.AWSResourceType;
 import com.netflix.simianarmy.client.aws.AWSClient;
 import com.netflix.simianarmy.janitor.AbstractJanitor;
@@ -41,7 +40,7 @@ public class AlarmJanitor extends AbstractJanitor{
      * @param ctx          the context
      */
     public AlarmJanitor(AWSClient awsClient, AbstractJanitor.Context ctx) {
-        super(ctx, AWSResourceType.ALARMS);
+        super(ctx, AWSResourceType.ALARM);
         Validate.notNull(awsClient);
         this.awsClient = awsClient;
     }

@@ -20,7 +20,6 @@
 package com.netflix.simianarmy.aws.janitor.crawler;
 
 import com.amazonaws.services.cloudwatch.model.MetricAlarm;
-import com.amazonaws.services.ec2.model.Volume;
 import com.netflix.simianarmy.Resource;
 import com.netflix.simianarmy.aws.AWSResource;
 import com.netflix.simianarmy.aws.AWSResourceType;
@@ -28,7 +27,6 @@ import com.netflix.simianarmy.client.aws.AWSClient;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.util.Date;
 import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -44,7 +42,7 @@ public class TestAlarmJanitorCrawler {
         AlarmJanitorCrawler crawler = new AlarmJanitorCrawler(createMockAWSClient(alarms));
         EnumSet<?> types = crawler.resourceTypes();
         Assert.assertEquals(types.size(), 1);
-        Assert.assertEquals(types.iterator().next().name(), "ALARMS");
+        Assert.assertEquals(types.iterator().next().name(), "ALARM");
     }
 
     @Test
@@ -70,7 +68,7 @@ public class TestAlarmJanitorCrawler {
         AlarmJanitorCrawler crawler = new AlarmJanitorCrawler(createMockAWSClient(alarms));
         for (AWSResourceType resourceType : AWSResourceType.values()) {
             List<Resource> resources = crawler.resources(resourceType);
-            if (resourceType == AWSResourceType.ALARMS) {
+            if (resourceType == AWSResourceType.ALARM) {
                 verifyAlarms(resources, alarms);
             } else {
                 Assert.assertTrue(resources.isEmpty());
@@ -87,7 +85,7 @@ public class TestAlarmJanitorCrawler {
     }
 
     private void verifyAlarm(Resource alarm, String alarmName) {
-        Assert.assertEquals(alarm.getResourceType(), AWSResourceType.ALARMS);
+        Assert.assertEquals(alarm.getResourceType(), AWSResourceType.ALARM);
         Assert.assertEquals(alarm.getId(), alarmName);
         Assert.assertEquals(alarm.getRegion(), "us-east-1");
         Assert.assertEquals(((AWSResource) alarm).getAWSResourceState(), "OK");
