@@ -271,13 +271,14 @@ public class SimpleDBRecorder implements MonkeyRecorder {
                 if (d.equals(domain)) {
                     DeleteDomainRequest deleteDomainRequest = new DeleteDomainRequest().withDomainName(domain);
                     LOGGER.debug("SimpleDB domain found: {}", domain);
-                    if (!domain.isEmpty()){
-                        LOGGER.debug("Deleting {}, because it's not empty",domain);
-                        sdbClient.deleteDomain(deleteDomainRequest);
-                    }
-                    else{
-                        return;
-                    }
+//                    if (!domain.isEmpty()){
+//                        LOGGER.debug("Deleting {}, because it's not empty",domain);
+//                        sdbClient.deleteDomain(deleteDomainRequest);
+//                    }
+//                    else{
+//                        return;
+//                    }
+                    return;
                 }
             }
             LOGGER.info("Creating SimpleDB domain: {}", domain);
