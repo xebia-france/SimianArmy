@@ -27,20 +27,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.amazonaws.services.simpledb.model.*;
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.services.simpledb.AmazonSimpleDB;
-import com.amazonaws.services.simpledb.model.Attribute;
-import com.amazonaws.services.simpledb.model.CreateDomainRequest;
-import com.amazonaws.services.simpledb.model.Item;
-import com.amazonaws.services.simpledb.model.ListDomainsResult;
-import com.amazonaws.services.simpledb.model.PutAttributesRequest;
-import com.amazonaws.services.simpledb.model.ReplaceableAttribute;
-import com.amazonaws.services.simpledb.model.SelectRequest;
-import com.amazonaws.services.simpledb.model.SelectResult;
 import com.netflix.simianarmy.EventType;
 import com.netflix.simianarmy.MonkeyRecorder;
 import com.netflix.simianarmy.MonkeyType;
@@ -272,17 +265,25 @@ public class SimpleDBRecorder implements MonkeyRecorder {
                 LOGGER.debug("Region=null; skipping SimpleDB domain creation");
                 return;
             }
-            ListDomainsResult listDomains = sdbClient().listDomains();
+            AmazonSimpleDB sdbClient = sdbClient();
+            ListDomainsResult listDomains = sdbClient.listDomains();
             for (String d : listDomains.getDomainNames()) {
                 if (d.equals(domain)) {
+                    DeleteDomainRequest deleteDomainRequest = new DeleteDomainRequest().withDomainName(domain);
                     LOGGER.debug("SimpleDB domain found: {}", domain);
-                    return;
+                    if (!domain.isEmpty()){
+                        LOGGER.debug("Deleting {}, because it's not empty",domain);
+                        sdbClient.deleteDomain(deleteDomainRequest);
+                    }
+                    else{
+                        return;
+                    }
                 }
             }
             LOGGER.info("Creating SimpleDB domain: {}", domain);
             CreateDomainRequest createDomainRequest = new CreateDomainRequest(
                     domain);
-            sdbClient().createDomain(createDomainRequest);
+            sdbClient.createDomain(createDomainRequest);
         } catch (AmazonClientException e) {
             LOGGER.warn("Error while trying to auto-create SimpleDB domain", e);
         }
