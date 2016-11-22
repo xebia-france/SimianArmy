@@ -1,0 +1,35 @@
+#
+# Global Properties
+# See https://github.com/Netflix/SimianArmy/wiki/Global-Settings
+# vim: ft=jproperties
+#
+
+{{if exists "/simianarmy/recorder/sdb/domain" -}}
+simianarmy.recorder.sdb.domain = {{getv "/simianarmy/recorder/sdb/domain"}}
+{{end -}}
+{{if exists "/simianarmy/recorder/localdb/file" -}}
+simianarmy.recorder.localdb.file = {{getv "/simianarmy/recorder/localdb/file"}}
+{{end -}}
+{{if exists "/simianarmy/recorder/localdb/maxevents" -}}
+simianarmy.recorder.localdb.max_events = {{getv "/simianarmy/recorder/localdb/maxevents"}}
+{{end -}}
+{{if exists "/simianarmy/recorder/localdb/password" -}}
+simianarmy.recorder.localdb.password = {{getv "/simianarmy/recorder/localdb/password"}}
+{{end -}}
+
+simianarmy.scheduler.frequency = {{getv "/simianarmy/scheduler/frequency" "1"}}
+simianarmy.scheduler.frequencyUnit = {{getv "/simianarmy/scheduler/frequencyunit" "HOURS"}}
+simianarmy.scheduler.threads = {{getv "/simianarmy/scheduler/threads" "1"}}
+
+simianarmy.calendar.openHour = {{getv "/simianarmy/calendar/openhour" "9"}}
+simianarmy.calendar.closeHour = {{getv "/simianarmy/calendar/closehour" "15"}}
+simianarmy.calendar.timezone = {{getv "/simianarmy/calendar/timezone" "America/Los_Angeles"}}
+simianarmy.calendar.isMonkeyTime = {{getv "/simianarmy/calendar/ismonkeytime" "false"}}
+
+{{if exists "/simianarmy/tags/owner" -}}
+simianarmy.tags.owner = {{getv "/simianarmy/tags/owner"}}
+{{end -}}
+
+{{if exists "/simianarmy/aws/email/region" -}}
+simianarmy.aws.email.region = {{getv "/simianarmy/aws/email/region"}}
+{{end -}}

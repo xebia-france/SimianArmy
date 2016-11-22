@@ -1,0 +1,40 @@
+#
+# Client Properties
+# See https://github.com/Netflix/SimianArmy/wiki/Client-Settings
+# vim: ft=jproperties
+#
+
+{{if exists "/simianarmy/client/aws/accountkey" -}}
+simianarmy.client.aws.accountKey = {{getv "/simianarmy/client/aws/accountkey"}}
+{{end -}}
+{{if exists "/simianarmy/client/aws/secretkey" -}}
+simianarmy.client.aws.secretKey = {{getv "/simianarmy/client/aws/secretkey"}}
+{{end -}}
+{{if exists "/simianarmy/client/aws/region" -}}
+simianarmy.client.aws.region = {{getv "/simianarmy/client/aws/region"}}
+{{end -}}
+{{if exists "/simianarmy/client/aws/assumerolearn" -}}
+simianarmy.client.aws.assumeRoleArn = {{getv "/simianarmy/client/aws/assumerolearn"}}
+{{end -}}
+{{if exists "/simianarmy/client/aws/accountname" -}}
+simianarmy.client.aws.accountName = {{getv "/simianarmy/client/aws/accountname"}}
+{{end -}}
+{{if exists "/simianarmy/client/aws/proxyhost" -}}
+simianarmy.client.aws.proxyHost = {{getv "/simianarmy/client/aws/proxyhost"}}
+{{end -}}
+{{if exists "/simianarmy/client/aws/proxyport" -}}
+simianarmy.client.aws.proxyPort = {{getv "/simianarmy/client/aws/proxyport"}}
+{{end -}}
+{{if exists "/simianarmy/client/aws/proxyuser" -}}
+simianarmy.client.aws.proxyUser = {{getv "/simianarmy/client/aws/proxyuser"}}
+{{end -}}
+{{if exists "/simianarmy/client/aws/proxypassword" -}}
+simianarmy.client.aws.proxyPassword = {{getv "/simianarmy/client/aws/proxypassword"}}
+{{end -}}
+
+{{if eq (getv "/simianarmy/client/localdb/enabled" "false") "true" -}}
+simianarmy.client.recorder.class = com.netflix.simianarmy.basic.LocalDbRecorder
+{{end -}}
+{{if eq (getv "/simianarmy/client/cloudformationmode/enabled" "false") "true" -}}
+simianarmy.client.chaos.class = com.netflix.simianarmy.basic.chaos.CloudFormationChaosMonkey
+{{end -}}

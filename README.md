@@ -1,28 +1,56 @@
-## DESCRIPTION
+# The Simian Army - Docker Edition
 
-The Simian Army is a suite of tools for keeping your cloud operating in top form.  Chaos Monkey, the first member, is a resiliency tool that
-helps ensure that your applications can tolerate random instance failures
+[![](https://images.microbadger.com/badges/image/mlafeldt/simianarmy.svg)](https://microbadger.com/images/mlafeldt/simianarmy)
+[![](https://quay.io/repository/mlafeldt/simianarmy/status)](https://quay.io/repository/mlafeldt/simianarmy)
+[![](https://img.shields.io/docker/pulls/mlafeldt/simianarmy.svg?maxAge=604800)](https://hub.docker.com/r/mlafeldt/simianarmy/)
 
-## CloudBees build status
-[![Build Status](https://netflixoss.ci.cloudbees.com/job/SimianArmy-master/badge/icon)](https://netflixoss.ci.cloudbees.com/job/SimianArmy-master/)
+This project provides a highly configurable Docker image of the [Simian Army](https://github.com/Netflix/SimianArmy) as a sound basis for [automating chaos experiments](https://medium.com/production-ready/chaos-monkey-for-fun-and-profit-87e2f343db31).
 
-## DETAILS
+> The Simian Army is a suite of tools for keeping your cloud operating in top form. Chaos Monkey, the first member, is a resiliency tool that helps ensure that your applications can tolerate random instance failures
 
-Please see the [wiki](https://github.com/Netflix/SimianArmy/wiki).
+## Quick Start
 
-## SUPPORT
+As an example, this command will start a Docker container running the Simian Army and instruct Chaos Monkey to consider all auto scaling groups (ASGs) in the given AWS account for termination:
 
-[Simian Army Google group](http://groups.google.com/group/simianarmy-users).
+```bash
+docker run -it --rm \
+    -e SIMIANARMY_CLIENT_AWS_ACCOUNTKEY=$AWS_ACCESS_KEY_ID \
+    -e SIMIANARMY_CLIENT_AWS_SECRETKEY=$AWS_SECRET_ACCESS_KEY \
+    -e SIMIANARMY_CLIENT_AWS_REGION=$AWS_REGION \
+    -e SIMIANARMY_CALENDAR_ISMONKEYTIME=true \
+    -e SIMIANARMY_CHAOS_ASG_ENABLED=true \
+    mlafeldt/simianarmy
+```
 
-## LICENSE
+This example is safe to run as Chaos Monkey will operate in dry-run mode by default. It's a good way for getting a feeling of the application without taking a risk.
 
-Copyright 2012 Netflix, Inc.
+The second example is more realistic. This time, Chaos Monkey will randomly terminate instances of the auto scaling groups tagged with a specific key-value pair:
 
-Licensed under the Apache License, Version 2.0 (the “License”); you may not use this file except in
-compliance with the License. You may obtain a copy of the License at
+```bash
+docker run -it --rm \
+    -e SIMIANARMY_CLIENT_AWS_ACCOUNTKEY=$AWS_ACCESS_KEY_ID \
+    -e SIMIANARMY_CLIENT_AWS_SECRETKEY=$AWS_SECRET_ACCESS_KEY \
+    -e SIMIANARMY_CLIENT_AWS_REGION=$AWS_REGION \
+    -e SIMIANARMY_CALENDAR_ISMONKEYTIME=true \
+    -e SIMIANARMY_CHAOS_ASG_ENABLED=true \
+    -e SIMIANARMY_CHAOS_ASGTAG_KEY=chaos_monkey \
+    -e SIMIANARMY_CHAOS_ASGTAG_VALUE=true \
+    -e SIMIANARMY_CHAOS_LEASHED=false \
+    mlafeldt/simianarmy
+```
 
-http://www.apache.org/licenses/LICENSE-2.0
-Unless required by applicable law or agreed to in writing, software distributed under the License is
-distributed on an “AS IS” BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
-implied. See the License for the specific language governing permissions and limitations under the
-License.
+Note that this command will actually *unleash* the monkey. But don't worry: you still need to tag your ASGs accordingly for any instances to be killed.
+
+There are many more configuration settings you can pass to the Docker image, including ones to control frequency, probability, and type of terminations. Also, you can (and should) configure Chaos Monkey to send email notifications about terminations. I encourage you to read the following documentation to learn more.
+
+## Documentation
+
+* [Usage](https://github.com/mlafeldt/docker-simianarmy/blob/master/docs/usage.md)
+* [Configuration](https://github.com/mlafeldt/docker-simianarmy/blob/master/docs/configuration.md)
+* [Configuration Properties](https://github.com/mlafeldt/docker-simianarmy/blob/master/docs/configuration-properties.md)
+* [Notifications](https://github.com/mlafeldt/docker-simianarmy/blob/master/docs/notifications.md)
+* [REST API](https://github.com/mlafeldt/docker-simianarmy/blob/master/docs/api.md)
+
+## Author
+
+This project is being developed by [Mathias Lafeldt](https://twitter.com/mlafeldt).
